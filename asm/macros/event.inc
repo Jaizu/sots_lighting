@@ -2018,3 +2018,23 @@
 	setvar VAR_0x8002, \tryMultiple
 	special TrySpecialOverworldEvo
 	.endm
+
+	@updates the LCD BG priority of bg to prio, this does not
+	.macro setbgpriority bg:req, prio:req
+	setvar 0x8000, \bg
+	setvar 0x8001, \prio
+	special UpdateOverworldBgPriority
+	.endm
+
+	@updates BLDCNT to the passed value of bldcnt
+	.macro setblend bldcnt:req
+	setvar 0x8000, \bldcnt
+	special UpdateOverworldBlendControl
+	.endm
+
+	@updates lightmap blend coefficients to eva and evb
+	.macro updatelightblend eva:req, evb:req
+	setvar 0x8000, \eva
+	setvar 0x8001, \evb
+	special UpdateLightmapBlend
+	.endm

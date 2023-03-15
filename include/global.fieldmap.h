@@ -154,7 +154,8 @@ struct MapHeader
     /* 0x15 */ u8 cave;
     /* 0x16 */ u8 weather;
     /* 0x17 */ u8 mapType;
-    /* 0x18 */ u8 filler_18[2];
+    /* 0x18 */ u8 specialBgEffect;
+    /* 0x19 */ u8 filler_19;
                // fields correspond to the arguments in the map_header_flags macro
     /* 0x1A */ bool8 allowCycling:1;
                bool8 allowEscaping:1; // Escape Rope and Dig
@@ -164,6 +165,9 @@ struct MapHeader
     /* 0x1B */ u8 battleType;
 };
 
+#define BG_EFFECT_NONE 0
+#define BG_EFFECT_BG3_PRIO_NO_SCROLL 1
+#define BG_EFFECT_BG3_PRIO_SCROLL 2
 
 struct ObjectEvent
 {

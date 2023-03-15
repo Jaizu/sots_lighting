@@ -137,6 +137,11 @@ string generate_map_header_text(Json map_data, Json layouts_data) {
          << "\t.byte "  << json_to_string(map_data, "requires_flash") << "\n"
          << "\t.byte "  << json_to_string(map_data, "weather") << "\n"
          << "\t.byte "  << json_to_string(map_data, "map_type") << "\n";
+         if(map_data.object_items().count("special_effect") != 0) {
+             text << "\t.byte " << map_data["special_effect"].string_value() << "\n";
+         } else {
+             text << "\t.byte 0\n";
+         }
 
     if (version != "firered")
         text << "\t.2byte 0\n";

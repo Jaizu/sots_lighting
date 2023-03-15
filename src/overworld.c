@@ -266,6 +266,86 @@ const struct UCoords32 gDirectionToVectors[] =
     },
 };
 
+static const struct BgTemplate sOverworldBgTemplatesBg3Prio[] =
+{
+    {
+        .bg = 0,
+        .charBaseIndex = 2,
+        .mapBaseIndex = 31,
+        .screenSize = 0,
+        .paletteMode = 0,
+        .priority = 0,
+        .baseTile = 0
+    },
+    {
+        .bg = 1,
+        .charBaseIndex = 0,
+        .mapBaseIndex = 29,
+        .screenSize = 0,
+        .paletteMode = 0,
+        .priority = 1,
+        .baseTile = 0
+    },
+    {
+        .bg = 2,
+        .charBaseIndex = 0,
+        .mapBaseIndex = 28,
+        .screenSize = 0,
+        .paletteMode = 0,
+        .priority = 2,
+        .baseTile = 0
+    },
+    {
+        .bg = 3,
+        .charBaseIndex = 2,
+        .mapBaseIndex = 30,
+        .screenSize = 0,
+        .paletteMode = 0,
+        .priority = 0,
+        .baseTile = 576
+    }
+};
+
+static const struct BgTemplate sOverworldBgTemplatesBg3PrioScroll[] =
+{
+    {
+        .bg = 0,
+        .charBaseIndex = 2,
+        .mapBaseIndex = 31,
+        .screenSize = 0,
+        .paletteMode = 0,
+        .priority = 0,
+        .baseTile = 0
+    },
+    {
+        .bg = 1,
+        .charBaseIndex = 0,
+        .mapBaseIndex = 29,
+        .screenSize = 0,
+        .paletteMode = 0,
+        .priority = 1,
+        .baseTile = 0
+    },
+    {
+        .bg = 2,
+        .charBaseIndex = 0,
+        .mapBaseIndex = 28,
+        .screenSize = 0,
+        .paletteMode = 0,
+        .priority = 2,
+        .baseTile = 0
+    },
+    {
+        .bg = 3,
+        .charBaseIndex = 0,
+        .mapBaseIndex = 30,
+        .screenSize = 0,
+        .paletteMode = 0,
+        .priority = 0,
+        .baseTile = 0
+    }
+};
+
 static const struct BgTemplate sOverworldBgTemplates[] =
 {
     {
@@ -1395,7 +1475,16 @@ u8 GetCurrentMapBattleScene(void)
 
 static void InitOverworldBgs(void)
 {
-    InitBgsFromTemplates(0, sOverworldBgTemplates, ARRAY_COUNT(sOverworldBgTemplates));
+    if(gMapHeader.specialBgEffect == BG_EFFECT_BG3_PRIO_NO_SCROLL)
+        InitBgsFromTemplates(0, sOverworldBgTemplatesBg3Prio, ARRAY_COUNT(sOverworldBgTemplatesBg3Prio));
+    else if(gMapHeader.specialBgEffect == BG_EFFECT_BG3_PRIO_SCROLL)
+        InitBgsFromTemplates(0, sOverworldBgTemplatesBg3PrioScroll, ARRAY_COUNT(sOverworldBgTemplatesBg3PrioScroll));
+    else if(gMapHeader.specialBgEffect == 10)
+        InitBgsFromTemplates(0, sOverworldBgTemplatesBg3PrioScroll, ARRAY_COUNT(sOverworldBgTemplatesBg3PrioScroll));
+    else if(gMapHeader.specialBgEffect == 15)
+        InitBgsFromTemplates(0, sOverworldBgTemplatesBg3PrioScroll, ARRAY_COUNT(sOverworldBgTemplatesBg3PrioScroll));
+    else
+        InitBgsFromTemplates(0, sOverworldBgTemplates, ARRAY_COUNT(sOverworldBgTemplates));
     SetBgAttribute(1, BG_ATTR_MOSAIC, 1);
     SetBgAttribute(2, BG_ATTR_MOSAIC, 1);
     SetBgAttribute(3, BG_ATTR_MOSAIC, 1);
@@ -1832,6 +1921,7 @@ static bool32 LoadMapInStepsLink(u8 *state)
     case 4:
         InitCurrentFlashLevelScanlineEffect();
         InitOverworldGraphicsRegisters();
+        RunOnGraphicsLoadedMapScript();
         InitTextBoxGfxAndPrinters();
         (*state)++;
         break;
@@ -1907,6 +1997,7 @@ static bool32 LoadMapInStepsLocal(u8 *state, bool32 a2)
     case 4:
         InitCurrentFlashLevelScanlineEffect();
         InitOverworldGraphicsRegisters();
+        RunOnGraphicsLoadedMapScript();
         InitTextBoxGfxAndPrinters();
         (*state)++;
         break;
@@ -2004,6 +2095,7 @@ static bool32 ReturnToFieldLink(u8 *state)
     case 3:
         InitCurrentFlashLevelScanlineEffect();
         InitOverworldGraphicsRegisters();
+        RunOnGraphicsLoadedMapScript();
         InitTextBoxGfxAndPrinters();
         (*state)++;
         break;
@@ -2084,6 +2176,7 @@ static void InitViewGraphics(void)
 {
     InitCurrentFlashLevelScanlineEffect();
     InitOverworldGraphicsRegisters();
+    RunOnGraphicsLoadedMapScript();
     InitTextBoxGfxAndPrinters();
     InitMapView();
 }
@@ -2099,9 +2192,23 @@ static void InitOverworldGraphicsRegisters(void)
     SetGpuReg(REG_OFFSET_WIN0V, 0xFF);
     SetGpuReg(REG_OFFSET_WIN1H, 0xFFFF);
     SetGpuReg(REG_OFFSET_WIN1V, 0xFFFF);
-    SetGpuReg(REG_OFFSET_BLDCNT, gOverworldBackgroundLayerFlags[1] | gOverworldBackgroundLayerFlags[2] | gOverworldBackgroundLayerFlags[3]
+    if(gMapHeader.specialBgEffect == BG_EFFECT_BG3_PRIO_NO_SCROLL || gMapHeader.specialBgEffect == BG_EFFECT_BG3_PRIO_SCROLL || gMapHeader.specialBgEffect == 10)
+    {
+        SetGpuReg(REG_OFFSET_BLDCNT, BLDCNT_TGT1_BG3 | BLDCNT_TGT2_BG1 | BLDCNT_TGT2_BG2 | BLDCNT_TGT2_OBJ | BLDCNT_EFFECT_BLEND);
+        SetGpuRegBits(REG_OFFSET_WININ, WININ_WIN0_CLR);
+        SetGpuRegBits(REG_OFFSET_WINOUT, WINOUT_WIN01_CLR);
+    }
+    if(gMapHeader.specialBgEffect == 15)
+    {
+        SetGpuReg(REG_OFFSET_BLDCNT, BLDCNT_TGT1_BG1 | BLDCNT_TGT2_BG2 | BLDCNT_TGT2_BG3 | BLDCNT_TGT2_OBJ | BLDCNT_EFFECT_BLEND);
+        SetGpuRegBits(REG_OFFSET_WININ, WININ_WIN0_CLR);
+        SetGpuRegBits(REG_OFFSET_WINOUT, WINOUT_WIN01_CLR);
+    }
+    else
+    {
+        SetGpuReg(REG_OFFSET_BLDCNT, gOverworldBackgroundLayerFlags[1] | gOverworldBackgroundLayerFlags[2] | gOverworldBackgroundLayerFlags[3]
                                | BLDCNT_TGT2_OBJ | BLDCNT_EFFECT_BLEND);
-    SetGpuReg(REG_OFFSET_BLDALPHA, BLDALPHA_BLEND(13, 7));
+    }
     InitOverworldBgs();
     ScheduleBgCopyTilemapToVram(1);
     ScheduleBgCopyTilemapToVram(2);
@@ -3219,4 +3326,25 @@ static void SpriteCB_LinkPlayer(struct Sprite *sprite)
         sprite->invisible = ((sprite->data[7] & 4) >> 2);
         sprite->data[7]++;
     }
+}
+
+void UpdateOverworldBgPriority(void)
+{
+    if(gSpecialVar_0x8000 <= 3 && gSpecialVar_0x8001 <=3)
+    {
+        SetBgAttribute(gSpecialVar_0x8000, BG_ATTR_PRIORITY, gSpecialVar_0x8001);
+        ShowBg(gSpecialVar_0x8000);
+    }
+}
+
+void UpdateOverworldBlendControl(void)
+{
+    SetGpuReg(REG_OFFSET_BLDCNT, gSpecialVar_0x8000);
+}
+
+void UpdateLightmapBlend(void)
+{
+    u16 c1 = gSpecialVar_0x8000;
+    u16 c2 = gSpecialVar_0x8001;
+    SetGpuReg(REG_OFFSET_BLDALPHA, BLDALPHA_BLEND(c1,c2));
 }

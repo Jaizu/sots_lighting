@@ -223,6 +223,12 @@ void DrawDoorMetatileAt(int x, int y, u16 *tiles)
     }
 }
 
+enum {
+    STATIC_BG_1,
+    STATIC_BG_2,
+    STATIC_BG_3
+};
+
 static void DrawMetatileAt(const struct MapLayout *mapLayout, u16 offset, int x, int y)
 {
     u16 metatileId = MapGridGetMetatileIdAt(x, y);
@@ -238,6 +244,61 @@ static void DrawMetatileAt(const struct MapLayout *mapLayout, u16 offset, int x,
         metatileId -= NUM_METATILES_IN_PRIMARY;
     }
     DrawMetatile(MapGridGetMetatileLayerTypeAt(x, y), metatiles + metatileId * NUM_TILES_PER_METATILE, offset);
+    /*
+    if(gMapHeader.specialBgEffect == 10)
+    {
+        struct MapConnection *conn = GetConnectionAtCoords(x,y);
+        const u16 *currentStaticMap = NULL;
+        if(conn != NULL)
+        {
+            const struct MapLayout *connectedMapLayout = GetMapLayoutByMapConnection(conn);
+            if(conn->direction == CONNECTION_WEST)
+            {
+                x = connectedMapLayout->width + x;
+                y = y - conn->offset;
+            }
+            else if(conn->direction == CONNECTION_EAST)
+            {
+                x = x - mapLayout->width;
+                y = y - conn->offset;
+            }
+            else if(conn->direction == CONNECTION_NORTH)
+            {
+                y = connectedMapLayout->height + y;
+                x = x - conn->offset;
+            }
+            else if(conn->direction == CONNECTION_SOUTH)
+            {
+                y = y - mapLayout->height;
+                x = x - conn->offset;
+            }
+            mapLayout = connectedMapLayout;
+        }
+        currentStaticMap = GetCurrentStaticMap(mapLayout, STATIC_BG_1);
+        if(currentStaticMap != NULL)
+        {
+            DrawStaticMap(mapLayout, x, y, offset, currentStaticMap, gOverworldTilemapBuffer_Bg2, FALSE);
+            ScheduleBgCopyTilemapToVram(1);
+        }
+        currentStaticMap = GetCurrentStaticMap(mapLayout, STATIC_BG_2);
+        if(currentStaticMap != NULL)
+        {
+            DrawStaticMap(mapLayout, x, y, offset, currentStaticMap, gOverworldTilemapBuffer_Bg1, FALSE);
+            ScheduleBgCopyTilemapToVram(2);
+        }
+        currentStaticMap = GetCurrentStaticMap(mapLayout, STATIC_BG_3);
+        if(currentStaticMap != NULL)
+        {
+            DrawStaticMap(mapLayout, x, y, offset, currentStaticMap, gOverworldTilemapBuffer_Bg3, FALSE);
+            ScheduleBgCopyTilemapToVram(3);
+        }
+    }
+    */
+}
+
+static bool8 DrawOnBg3Enabled(void)
+{
+    return gMapHeader.specialBgEffect != BG_EFFECT_BG3_PRIO_NO_SCROLL;
 }
 
 static void DrawMetatile(s32 metatileLayerType, const u16 *tiles, u16 offset)
@@ -264,6 +325,13 @@ static void DrawMetatile(s32 metatileLayerType, const u16 *tiles, u16 offset)
         gOverworldTilemapBuffer_Bg1[offset + 0x21] = tiles[7];
         break;
     case METATILE_LAYER_TYPE_COVERED:
+        if (DrawOnBg3Enabled())
+        {
+            gOverworldTilemapBuffer_Bg3[offset] = tiles[0];
+            gOverworldTilemapBuffer_Bg3[offset + 1] = tiles[1];
+            gOverworldTilemapBuffer_Bg3[offset + 0x20] = tiles[2];
+            gOverworldTilemapBuffer_Bg3[offset + 0x21] = tiles[3];
+        }
         // Draw metatile's bottom layer to the bottom background layer.
         gOverworldTilemapBuffer_Bg3[offset] = tiles[0];
         gOverworldTilemapBuffer_Bg3[offset + 1] = tiles[1];

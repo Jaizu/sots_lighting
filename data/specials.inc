@@ -536,3 +536,6 @@ gSpecials::
 	def_special TrySetBattleTowerLinkType
 	def_special SetTotemBoost
 	def_special TrySpecialOverworldEvo
+	def_special UpdateLightmapBlend
+	def_special UpdateOverworldBlendControl
+	def_special UpdateOverworldBgPriority

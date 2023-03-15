@@ -4,6 +4,7 @@
 .set LOCALID_BIRCH, 8
 
 LittlerootTown_MapScripts::
+	map_script MAP_SCRIPT_ON_GRAPHICS_LOADED, OutdoorLightEffectsScripts
 	map_script MAP_SCRIPT_ON_TRANSITION, LittlerootTown_OnTransition
 	map_script MAP_SCRIPT_ON_FRAME_TABLE, LittlerootTown_OnFrame
 	map_script MAP_SCRIPT_ON_WARP_INTO_MAP_TABLE, LittlerootTown_OnWarp
@@ -1019,3 +1020,9 @@ LittlerootTown_Text_BirchSomethingToShowYouAtLab:
 	.string "I have something to show you.\n"
 	.string "Let's go to my LAB.$"
 
+OutdoorLightEffectsScripts:
+	setbgpriority 3, 0
+	setblend BLDCNT_TGT1_BG3 | BLDCNT_TGT2_BG1 | BLDCNT_TGT2_BG2 | BLDCNT_TGT2_OBJ | BLDCNT_EFFECT_BLEND
+	updatelightblend 15,16
+	release
+	end

@@ -345,6 +345,11 @@ void RunOnReturnToFieldMapScript(void)
     MapHeaderRunScriptType(MAP_SCRIPT_ON_RETURN_TO_FIELD);
 }
 
+void RunOnGraphicsLoadedMapScript(void)
+{
+    MapHeaderRunScriptType(MAP_SCRIPT_ON_GRAPHICS_LOADED);
+}
+
 void RunOnDiveWarpMapScript(void)
 {
     MapHeaderRunScriptType(MAP_SCRIPT_ON_DIVE_WARP);
